@@ -6,9 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class LogParser {
 
@@ -26,7 +24,7 @@ public class LogParser {
 
     public static LogEntry parseLine(String source) {
         LogEntry result = new LogEntry();
-        List<String> parts = Arrays.asList(source.split(" "));
+        List<String> parts = new ArrayList<>(Arrays.asList(source.split(" ")));
         List<Integer> indexesToRemove = new ArrayList<>();
 
         boolean levelParsed = false;
@@ -34,6 +32,8 @@ public class LogParser {
         boolean dateTimeParsed = false;
         boolean dateParsed = false;
         boolean timeParsed = false;
+
+        boolean invokingClassParsed = false;
 
         LocalDateTime localDateTime;
         LocalDate localDate = null;
@@ -54,17 +54,21 @@ public class LogParser {
                     localDateTime = LocalDateTime.parse(parts.get(i));
                     result.setEventDate(localDateTime);
                     dateTimeParsed = true;
+                    indexesToRemove.add(i);
                 } catch (Exception e) {
                     if (!dateParsed) {
                         try {
                             localDate = LocalDate.parse(parts.get(i));
                             dateParsed = true;
-                        } catch (Exception ignored) {}
+                            indexesToRemove.add(i);
+                        } catch (Exception ignored) {
+                        }
                     }
                     if (!timeParsed) {
                         try {
                             localTime = LocalTime.parse(parts.get(i));
                             timeParsed = true;
+                            indexesToRemove.add(i);
                         } catch (Exception ignored) {}
                     }
                 }
@@ -78,7 +82,28 @@ public class LogParser {
                     }
                 }
             }
+
+            if (!invokingClassParsed) {
+                if (parts.get(i).matches(".*[a-zA-Z]\\.[a-zA-Z].*")) {
+                    result.setInvokingClass(parts.get(i));
+                    invokingClassParsed = true;
+                    indexesToRemove.add(i);
+                }
+            }
+
+            if (dateTimeParsed && levelParsed && invokingClassParsed) {
+                break;
+            }
         }
+
+        indexesToRemove.sort(Collections.reverseOrder());
+
+        for (int i = 0; i < indexesToRemove.size(); i++) {
+            parts.remove(indexesToRemove.get(i).intValue());
+        }
+
+        String content = String.join(" ", parts);
+        result.setContent(content);
 
         return result;
     }
