@@ -3,6 +3,7 @@ package com.hastesoft.logparser.service;
 import com.hastesoft.logparser.model.LogEntry;
 import com.hastesoft.logparser.repository.LogEntryRepository;
 import com.hastesoft.logparser.util.LogParser;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,5 +17,9 @@ public class LogEntryService {
 
     public List<LogEntry> parseAndSaveLog(String source) {
         return logEntryRepository.saveAll(LogParser.parseLogEntries(source));
+    }
+
+    public List<LogEntry> getAll() {
+        return logEntryRepository.findAll();
     }
 }
