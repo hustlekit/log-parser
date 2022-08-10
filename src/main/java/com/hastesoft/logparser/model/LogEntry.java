@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Entity
 @Table(name = "log_entry")
-@SequenceGenerator(name = "logEntryGenerator", sequenceName = "log_entry_seq")
+@SequenceGenerator(name = "logEntryGenerator", sequenceName = "log_entry_seq", allocationSize = 1)
 public class LogEntry {
 
     @Id
