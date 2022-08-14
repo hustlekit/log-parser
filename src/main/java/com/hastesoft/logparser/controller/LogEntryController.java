@@ -23,7 +23,7 @@ public class LogEntryController {
     @Autowired
     private LogEntryService logEntryService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<List<LogEntry>> parseAndSaveLog(@RequestBody String source) {
         List<LogEntry> result = logEntryService.parseAndSaveLog(source);
         return new ResponseEntity<>(result, HttpStatus.OK);
